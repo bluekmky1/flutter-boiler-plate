@@ -1,3 +1,3 @@
 # boiler plate
 
-A new Flutter project.
+For a new Flutter project.
