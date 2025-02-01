@@ -43,6 +43,10 @@ class _SignInViewState extends ConsumerState<SignInView> {
       },
     );
 
+    // 테스트 계정
+    // hazardous10@naver.com
+    // 1234
+
     return Scaffold(
       appBar: AppBar(),
       body: LayoutBuilder(

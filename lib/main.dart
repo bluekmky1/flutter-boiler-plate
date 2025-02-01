@@ -6,7 +6,7 @@ import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 import 'routes/app_router.dart';
 import 'service/app/app_service.dart';
-import 'theme/boiler_colors.dart';
+import 'theme/vote_admin_colors.dart';
 
 void main() {
   // URL에서 # 제거
@@ -50,6 +50,7 @@ class _MainAppState extends ConsumerState<MainApp> {
             backgroundColor: VoteAdminColors.white,
             foregroundColor: VoteAdminColors.primary,
             elevation: 0,
+            scrolledUnderElevation: 0,
           ),
           scaffoldBackgroundColor: VoteAdminColors.background,
           elevatedButtonTheme: ElevatedButtonThemeData(

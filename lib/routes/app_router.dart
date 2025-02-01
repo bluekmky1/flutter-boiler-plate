@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../ui/home/home_view.dart';
+import '../ui/manage_user/manage_user_view.dart';
+import '../ui/manage_vote/manage_vote_view.dart';
 import '../ui/sign_in/sign_in_view.dart';
 import '../ui/sign_up/sign_up_view.dart';
 import 'app_router_interceptor.dart';
@@ -51,6 +53,22 @@ class AppRouter {
         pageBuilder: (BuildContext context, GoRouterState state) =>
             const NoTransitionPage<dynamic>(
           child: HomeView(),
+        ),
+      ),
+      GoRoute(
+        name: Routes.manageUser.name,
+        path: Routes.manageUser.path,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            const NoTransitionPage<dynamic>(
+          child: ManageUserView(),
+        ),
+      ),
+      GoRoute(
+        name: Routes.manageVote.name,
+        path: Routes.manageVote.path,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            const NoTransitionPage<dynamic>(
+          child: ManageVoteView(),
         ),
       ),
 

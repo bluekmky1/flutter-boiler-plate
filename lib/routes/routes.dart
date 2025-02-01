@@ -22,4 +22,16 @@ class Routes {
     name: '/home',
     path: '/home',
   );
+
+  // 회원 관리
+  static const RouteInfo manageUser = RouteInfo(
+    name: '/manage-user',
+    path: '/manage-user',
+  );
+
+  // 선거 관리
+  static const RouteInfo manageVote = RouteInfo(
+    name: '/manage-vote',
+    path: '/manage-vote',
+  );
 }
