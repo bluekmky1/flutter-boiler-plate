@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
+import 'auth_interceptor.dart';
+
 // import 'auth_interceptor.dart';
 
 final Provider<Dio> dioServiceProvider = Provider<Dio>(
@@ -18,19 +20,19 @@ final Provider<Dio> dioServiceProvider = Provider<Dio>(
             responseHeader: true,
           ),
           // 토큰 확인 인터셉터
-          // ref.watch(authInterceptorProvider),
+          ref.watch(authInterceptorProvider),
         ]);
     }
     // 배포 환경
     return DioClient.dio
       ..interceptors.addAll(<Interceptor>[
-        // ref.watch(authInterceptorProvider),
+        ref.watch(authInterceptorProvider),
       ]);
   },
 );
 
 class DioClient {
-  static const String baseUrl = 'http://58.238.255.245:8080/api/v1/';
+  static const String baseUrl = 'http://13.125.244.156:8080/api/v1/';
 
   factory DioClient() => DioClient._();
   DioClient._();

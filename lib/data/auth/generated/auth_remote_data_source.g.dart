@@ -22,26 +22,21 @@ class _AuthRemoteDataSource implements AuthRemoteDataSource {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<AuthTokenEntity> signIn({
-    required String id,
-    required String password,
-  }) async {
+  Future<ApiResponse<AuthTokenEntity>> signIn(
+      {required SignInRequestBody signInRequestBody}) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    final _data = {
-      'id': id,
-      'password': password,
-    };
-    final _options = _setStreamType<AuthTokenEntity>(Options(
+    final _data = <String, dynamic>{};
+    _data.addAll(signInRequestBody.toJson());
+    final _options = _setStreamType<ApiResponse<AuthTokenEntity>>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
-      contentType: 'application/x-www-form-urlencoded',
     )
         .compose(
           _dio.options,
-          '/auth/signin',
+          '/auth/sign-in',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -51,9 +46,12 @@ class _AuthRemoteDataSource implements AuthRemoteDataSource {
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late AuthTokenEntity _value;
+    late ApiResponse<AuthTokenEntity> _value;
     try {
-      _value = AuthTokenEntity.fromJson(_result.data!);
+      _value = ApiResponse<AuthTokenEntity>.fromJson(
+        _result.data!,
+        (json) => AuthTokenEntity.fromJson(json as Map<String, dynamic>),
+      );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -62,7 +60,7 @@ class _AuthRemoteDataSource implements AuthRemoteDataSource {
   }
 
   @override
-  Future<AuthTokenEntity> signUp({
+  Future<ApiResponse<AuthTokenEntity>> signUp({
     required String id,
     required String name,
     required String password,
@@ -75,15 +73,14 @@ class _AuthRemoteDataSource implements AuthRemoteDataSource {
       'name': name,
       'password': password,
     };
-    final _options = _setStreamType<AuthTokenEntity>(Options(
+    final _options = _setStreamType<ApiResponse<AuthTokenEntity>>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
-      contentType: 'application/x-www-form-urlencoded',
     )
         .compose(
           _dio.options,
-          '/auth/signun',
+          '/auth/sign-up',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -93,39 +90,17 @@ class _AuthRemoteDataSource implements AuthRemoteDataSource {
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late AuthTokenEntity _value;
+    late ApiResponse<AuthTokenEntity> _value;
     try {
-      _value = AuthTokenEntity.fromJson(_result.data!);
+      _value = ApiResponse<AuthTokenEntity>.fromJson(
+        _result.data!,
+        (json) => AuthTokenEntity.fromJson(json as Map<String, dynamic>),
+      );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
     }
     return _value;
-  }
-
-  @override
-  Future<void> checkDuplicatedId({required String id}) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'id': id};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<void>(Options(
-      method: 'GET',
-      headers: _headers,
-      extra: _extra,
-    )
-        .compose(
-          _dio.options,
-          '/duplication',
-          queryParameters: queryParameters,
-          data: _data,
-        )
-        .copyWith(
-            baseUrl: _combineBaseUrls(
-          _dio.options.baseUrl,
-          baseUrl,
-        )));
-    await _dio.fetch<void>(_options);
   }
 
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {

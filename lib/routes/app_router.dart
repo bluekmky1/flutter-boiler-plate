@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../ui/home/home_view.dart';
+import '../ui/sign_in/sign_in_view.dart';
+import '../ui/sign_up/sign_up_view.dart';
 import 'app_router_interceptor.dart';
 import 'redirect_notifier.dart';
 import 'routes.dart';
@@ -52,36 +54,30 @@ class AppRouter {
         ),
       ),
 
-      // Auth
-      // GoRoute(
-      //   path: Routes.auth.path,
-      //   name: Routes.auth.name,
-      //   redirect: (BuildContext context, GoRouterState state) {
-      //     if (state.fullPath == null || state.fullPath == Routes.auth.path) {
-      //       return Routes.signIn.name;
-      //     }
-      //     return null;
-      //   },
-      //   routes: <RouteBase>[
-      //     GoRoute(
-      //         name: Routes.signIn.name,
-      //         path: Routes.signIn.path,
-      //         pageBuilder: (BuildContext context, GoRouterState state) =>
-      //             const NoTransitionPage<dynamic>(
-      //               child: SignInView(),
-      //             ),
-      //         routes: <RouteBase>[
-      //           GoRoute(
-      //             name: Routes.signUp.name,
-      //             path: Routes.signUp.path,
-      //             pageBuilder: (BuildContext context, GoRouterState state) =>
-      //                 const NoTransitionPage<dynamic>(
-      //               child: SignUpView(),
-      //             ),
-      //           ),
-      //         ]),
-      //   ],
-      // ),
+      // Auth Routes
+      GoRoute(
+        path: Routes.auth.path,
+        name: Routes.auth.name,
+        redirect: _redirect,
+        routes: <RouteBase>[
+          GoRoute(
+            name: Routes.signIn.name,
+            path: Routes.signIn.path,
+            pageBuilder: (BuildContext context, GoRouterState state) =>
+                const NoTransitionPage<dynamic>(
+              child: SignInView(),
+            ),
+          ),
+          GoRoute(
+            name: Routes.signUp.name,
+            path: Routes.signUp.path,
+            pageBuilder: (BuildContext context, GoRouterState state) =>
+                const NoTransitionPage<dynamic>(
+              child: SignUpView(),
+            ),
+          ),
+        ],
+      ),
     ],
   );
 

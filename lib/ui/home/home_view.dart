@@ -14,25 +14,16 @@ class HomeView extends ConsumerStatefulWidget {
 
 class _HomeViewState extends ConsumerState<HomeView> {
   @override
-  void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(homeViewModelProvider.notifier).init();
-    });
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final HomeState state = ref.watch(homeViewModelProvider);
     final HomeViewModel viewModel = ref.read(homeViewModelProvider.notifier);
     return Scaffold(
-      appBar: AppBar(),
       body: Column(
         children: <Widget>[
           Text(state.example),
           TextButton(
-            onPressed: viewModel.onToggleExample,
-            child: const Text('toggleExample'),
+            onPressed: viewModel.onSignOut,
+            child: const Text('signOut'),
           ),
         ],
       ),
