@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../consts/breakpoints.dart';
 import '../widgets/app_bar_widget.dart';
 import '../widgets/navigation_drawer.dart';
 
