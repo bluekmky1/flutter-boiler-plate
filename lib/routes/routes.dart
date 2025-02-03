@@ -34,4 +34,22 @@ class Routes {
     name: '/manage-vote',
     path: '/manage-vote',
   );
+
+  // 선거 공고 관리
+  static const RouteInfo manageElectionNotice = RouteInfo(
+    name: '/manage-election-notice',
+    path: '/manage-election-notice',
+  );
+
+  // 투표 분석
+  static const RouteInfo voteAnalytics = RouteInfo(
+    name: '/vote-analytics',
+    path: '/vote-analytics',
+  );
+
+  // 후보자 관리
+  static const RouteInfo candidateManage = RouteInfo(
+    name: '/candidate-manage',
+    path: '/candidate-manage',
+  );
 }

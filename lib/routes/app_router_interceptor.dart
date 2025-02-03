@@ -35,6 +35,12 @@ class AppRouterInterceptor {
 
     // 토큰이 없다면 로그인 페이지로 이동합니다.
     if (accessToken == null || refreshToken == null) {
+      // 회원 가입 페이지로 이동이면 회원가입 페이지로 이동
+      if (state.fullPath?.startsWith(Routes.signUp.name) == true) {
+        return Routes.signUp.name;
+      }
+
+      // 로그인 페이지로 이동
       return Routes.signIn.name;
     }
 

@@ -24,9 +24,10 @@ class _ManageVoteViewState extends ConsumerState<ManageVoteView> {
   final List<PlatformFile> _guideImages = <PlatformFile>[];
   final List<String> _imageUrls = <String>[];
   final ScrollController _scrollController = ScrollController();
+  bool _isFormSubmitted = false; // 추가: 폼 제출 시도 여부를 추적
 
   // TODO: 실제 데이터 모델로 교체
-  bool hasActiveElection = true; // 임시로 선거 유무 상태 확인
+  bool hasActiveElection = false; // 임시로 선거 유무 상태 확인
 
   @override
   void dispose() {
@@ -137,7 +138,7 @@ class _ManageVoteViewState extends ConsumerState<ManageVoteView> {
           }
         });
       }
-    } catch (e) {
+    } on Exception catch (e) {
       print('Image picker error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -153,36 +154,38 @@ class _ManageVoteViewState extends ConsumerState<ManageVoteView> {
     final double contentWidth = screenWidth >= Breakpoints.desktop
         ? Breakpoints.desktopContentWidth
         : screenWidth >= Breakpoints.tablet
-            ? screenWidth * 0.8 // 태블릿에서는 화면 너비의 80%를 사용
+            ? screenWidth * 0.8
             : Breakpoints.mobileContentWidth;
 
     return MainLayout(
       child: Center(
-        child: SizedBox(
-          width: contentWidth,
-          child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(
-              horizontal: screenWidth >= Breakpoints.desktop
-                  ? Breakpoints.desktopPadding
-                  : screenWidth >= Breakpoints.tablet
-                      ? Breakpoints.tabletPadding
-                      : Breakpoints.mobilePadding,
-              vertical: 16,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  '선거 관리',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                const SizedBox(height: 24),
-                if (hasActiveElection) ...<Widget>[
-                  _buildActiveElection(),
-                ] else ...<Widget>[
-                  _buildCreateElectionForm(),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: screenWidth >= Breakpoints.desktop
+                ? Breakpoints.desktopPadding
+                : screenWidth >= Breakpoints.tablet
+                    ? Breakpoints.tabletPadding
+                    : Breakpoints.mobilePadding,
+            vertical: 16,
+          ),
+          child: SizedBox(
+            width: contentWidth,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    '선거 관리',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: 24),
+                  if (hasActiveElection) ...<Widget>[
+                    _buildActiveElection(),
+                  ] else ...<Widget>[
+                    _buildCreateElectionForm(),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),
@@ -236,18 +239,17 @@ class _ManageVoteViewState extends ConsumerState<ManageVoteView> {
                 ),
               ),
               onPressed: () {
-                if (_formKey.currentState!.validate() &&
-                    _electionPeriod != null) {
+                setState(() {
+                  _isFormSubmitted = true; // 폼 제출 시도를 표시
+                });
+                if (_formKey.currentState!.validate()) {
+                  if (_electionPeriod == null) {
+                    return;
+                  }
                   // TODO: 선거 생성 로직 구현
                   print('선거명: ${_titleController.text}');
                   print('기간: $_electionPeriod');
                   print('설명: ${_descriptionController.text}');
-                } else if (_electionPeriod == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('선거 기간을 선택해주세요'),
-                    ),
-                  );
                 }
               },
               child: const Text('선거 생성'),
@@ -272,12 +274,16 @@ class _ManageVoteViewState extends ConsumerState<ManageVoteView> {
         },
       );
 
-  Widget _buildDateRangeField() => InkWell(
+  Widget _buildDateRangeField() => GestureDetector(
         onTap: _selectDateRange,
         child: InputDecorator(
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             labelText: '선거 기간',
-            border: OutlineInputBorder(),
+            border: const OutlineInputBorder(),
+            errorBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.red),
+            ),
+            errorText: _isFormSubmitted && _electionPeriod == null ? '' : null,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -286,6 +292,11 @@ class _ManageVoteViewState extends ConsumerState<ManageVoteView> {
                 _electionPeriod == null
                     ? '선거 기간을 선택해주세요'
                     : '${_electionPeriod!.start.toString().split(' ')[0]} ~ ${_electionPeriod!.end.toString().split(' ')[0]}',
+                style: TextStyle(
+                  color: _isFormSubmitted && _electionPeriod == null
+                      ? Colors.red
+                      : null,
+                ),
               ),
               const Icon(Icons.calendar_today),
             ],

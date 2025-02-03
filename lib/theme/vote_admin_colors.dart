@@ -19,7 +19,7 @@ class VoteAdminColors {
 
   // Error Colors
   static const Color error = Color(0xFFDC3545); // 빨간색
-  static const Color onError = Color(0xFFFFFFFF); // 흰색
+  static const Color onError = Color(0xFFDC3545); // 빨간색
 
   // Additional Colors
   static const Color accent = Color(0xFF00A3FF); // 강조색 (밝은 파랑)

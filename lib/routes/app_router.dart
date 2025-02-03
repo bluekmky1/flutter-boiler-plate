@@ -3,11 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../ui/candidate_management/candidate_manage_view.dart';
 import '../ui/home/home_view.dart';
+import '../ui/manage_election_notice/manage_election_notice_view.dart';
 import '../ui/manage_user/manage_user_view.dart';
 import '../ui/manage_vote/manage_vote_view.dart';
 import '../ui/sign_in/sign_in_view.dart';
 import '../ui/sign_up/sign_up_view.dart';
+import '../ui/vote_analytics/vote_analytics_view.dart';
 import 'app_router_interceptor.dart';
 import 'redirect_notifier.dart';
 import 'routes.dart';
@@ -69,6 +72,30 @@ class AppRouter {
         pageBuilder: (BuildContext context, GoRouterState state) =>
             const NoTransitionPage<dynamic>(
           child: ManageVoteView(),
+        ),
+      ),
+      GoRoute(
+        name: Routes.manageElectionNotice.name,
+        path: Routes.manageElectionNotice.path,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            const NoTransitionPage<dynamic>(
+          child: ManageElectionNoticeView(),
+        ),
+      ),
+      GoRoute(
+        name: Routes.voteAnalytics.name,
+        path: Routes.voteAnalytics.path,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            const NoTransitionPage<dynamic>(
+          child: VoteAnalyticsView(),
+        ),
+      ),
+      GoRoute(
+        name: Routes.candidateManage.name,
+        path: Routes.candidateManage.path,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            const NoTransitionPage<dynamic>(
+          child: CandidateManageView(),
         ),
       ),
 

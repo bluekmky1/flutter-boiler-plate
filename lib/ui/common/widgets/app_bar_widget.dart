@@ -20,7 +20,7 @@ class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
             return Row(
               children: <Widget>[
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.fromLTRB(0, 8.0, 8.0, 8.0),
                   child: Image.asset(
                     Assets.mjuLogo,
                     fit: BoxFit.contain,

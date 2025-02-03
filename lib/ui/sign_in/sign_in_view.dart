@@ -29,7 +29,6 @@ class _SignInViewState extends ConsumerState<SignInView> {
 
   @override
   Widget build(BuildContext context) {
-    final SignInState state = ref.watch(signInViewModelProvider);
     final SignInViewModel viewModel =
         ref.read(signInViewModelProvider.notifier);
 
@@ -144,20 +143,20 @@ class _SignInViewState extends ConsumerState<SignInView> {
                           return null;
                         },
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: Breakpoints.mobilePadding,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: <Widget>[
-                            TextButton(
-                              onPressed: () {},
-                              child: const Text('비밀번호를 잊으셨나요?'),
-                            ),
-                          ],
-                        ),
-                      ),
+                      // Padding(
+                      //   padding: const EdgeInsets.only(
+                      //     top: Breakpoints.mobilePadding,
+                      //   ),
+                      //   child: Row(
+                      //     mainAxisAlignment: MainAxisAlignment.end,
+                      //     children: <Widget>[
+                      //       TextButton(
+                      //         onPressed: () {},
+                      //         child: const Text('비밀번호를 잊으셨나요?'),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
                       const SizedBox(height: Breakpoints.mobilePadding),
                       ElevatedButton(
                         onPressed: () {

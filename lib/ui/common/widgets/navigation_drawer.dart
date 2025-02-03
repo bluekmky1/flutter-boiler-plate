@@ -13,9 +13,14 @@ class AppNavigationDrawer extends ConsumerWidget {
     final AppService appService = ref.read(appServiceProvider.notifier);
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final String currentRoute = GoRouterState.of(context).uri.path;
+    final double screenWidth = MediaQuery.of(context).size.width;
     return Drawer(
+      width: screenWidth < 400
+          ? screenWidth * 0.80 // 모바일: 화면의 85%
+          : 320, // 태블릿/데스크톱: 화면의 30%
       backgroundColor: colorScheme.onPrimary,
       child: ListView(
+        physics: const BouncingScrollPhysics(),
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
@@ -61,26 +66,21 @@ class AppNavigationDrawer extends ConsumerWidget {
               context.goNamed(Routes.home.name);
             },
           ),
+
           _NavigationDrawerItem(
-            icon: Icons.campaign,
-            label: '선거 공고',
-            onPressed: () {},
+            icon: Icons.person,
+            label: '후보자 정보 관리',
+            isSelected: currentRoute == Routes.candidateManage.path,
+            onPressed: () {
+              context.goNamed(Routes.candidateManage.name);
+            },
           ),
           _NavigationDrawerItem(
-            icon: Icons.how_to_vote,
-            label: '투표자 정보',
+            icon: Icons.article,
+            label: '게시글 관리',
             onPressed: () {},
           ),
-          _NavigationDrawerItem(
-            icon: Icons.bar_chart,
-            label: '투표율',
-            onPressed: () {},
-          ),
-          _NavigationDrawerItem(
-            icon: Icons.poll,
-            label: '개표 결과',
-            onPressed: () {},
-          ),
+
           const Padding(
             padding: EdgeInsets.only(top: 32.0, left: 16.0),
             child: Text(
@@ -104,12 +104,33 @@ class AppNavigationDrawer extends ConsumerWidget {
             },
           ),
           _NavigationDrawerItem(
+            icon: Icons.campaign,
+            label: '선거 공고 관리',
+            isSelected: currentRoute == Routes.manageElectionNotice.path,
+            onPressed: () {
+              context.goNamed(Routes.manageElectionNotice.name);
+            },
+          ),
+          _NavigationDrawerItem(
             icon: Icons.group,
-            label: '선관위 회원 관리',
+            label: '후보자 승인 관리',
             isSelected: currentRoute == Routes.manageUser.path,
             onPressed: () {
               context.goNamed(Routes.manageUser.name);
             },
+          ),
+          _NavigationDrawerItem(
+            icon: Icons.bar_chart,
+            label: '투표율',
+            isSelected: currentRoute == Routes.voteAnalytics.path,
+            onPressed: () {
+              context.goNamed(Routes.voteAnalytics.name);
+            },
+          ),
+          _NavigationDrawerItem(
+            icon: Icons.poll,
+            label: '개표 결과',
+            onPressed: () {},
           ),
         ],
       ),
