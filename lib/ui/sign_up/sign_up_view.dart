@@ -37,7 +37,7 @@ class _SignUpViewState extends ConsumerState<SignUpView> {
 
   @override
   Widget build(BuildContext context) {
-    final SignUpState state = ref.watch(signUpViewModelProvider);
+    ref.watch(signUpViewModelProvider);
     final SignUpViewModel viewModel =
         ref.read(signUpViewModelProvider.notifier);
 
