@@ -118,24 +118,28 @@ class _ManageVoteViewState extends ConsumerState<ManageVoteView> {
     try {
       final html.FileUploadInputElement input = html.FileUploadInputElement()
         ..accept = 'image/*'
-        ..multiple = true;
+        ..multiple = false; // 단일 이미지만 선택 가능
 
       input.click();
 
       await input.onChange.first;
 
       if (input.files != null && input.files!.isNotEmpty) {
-        final List<html.File> files = input.files!;
+        final html.File file = input.files!.first;
         setState(() {
-          for (final html.File file in files) {
-            _guideImages.add(PlatformFile(
-              name: file.name,
-              size: file.size,
-            ));
-            // URL 생성 및 저장
-            final String url = html.Url.createObjectUrl(file);
-            _imageUrls.add(url);
+          // 기존 이미지가 있다면 제거
+          if (_imageUrls.isNotEmpty) {
+            html.Url.revokeObjectUrl(_imageUrls.first);
+            _imageUrls.clear();
+            _guideImages.clear();
           }
+          // 새 이미지 추가
+          _guideImages.add(PlatformFile(
+            name: file.name,
+            size: file.size,
+          ));
+          final String url = html.Url.createObjectUrl(file);
+          _imageUrls.add(url);
         });
       }
     } on Exception catch (e) {
@@ -327,96 +331,69 @@ class _ManageVoteViewState extends ConsumerState<ManageVoteView> {
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
-          ScrollbarTheme(
-            data: ScrollbarThemeData(
-              thumbColor: WidgetStateProperty.all(Colors.grey[400]),
-              thickness: WidgetStateProperty.all(8.0),
-              radius: const Radius.circular(4.0),
-            ),
-            child: Scrollbar(
-              controller: _scrollController,
-              thumbVisibility: true,
-              thickness: 8.0,
-              radius: const Radius.circular(4.0),
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                scrollDirection: Axis.horizontal,
-                child: Row(
+          if (_guideImages.isEmpty)
+            Container(
+              width: 200,
+              height: 282,
+              clipBehavior: Clip.hardEdge,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: InkWell(
+                onTap: _pickImage,
+                child: const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    // 이미지 추가 버튼
-                    Container(
-                      width: 150,
-                      height: 150,
-                      clipBehavior: Clip.hardEdge,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: InkWell(
-                        onTap: _pickImage,
-                        child: const Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Icon(Icons.add_photo_alternate, size: 40),
-                            SizedBox(height: 8),
-                            Text('이미지 추가'),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    // 선택된 이미지 목록
-                    ..._guideImages
-                        .asMap()
-                        .entries
-                        .map((MapEntry<int, PlatformFile> entry) => Stack(
-                              children: <Widget>[
-                                Container(
-                                  width: 150,
-                                  height: 150,
-                                  margin: const EdgeInsets.only(right: 8),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    image: DecorationImage(
-                                      image:
-                                          NetworkImage(_imageUrls[entry.key]),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 4,
-                                  right: 12,
-                                  child: InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        html.Url.revokeObjectUrl(
-                                            _imageUrls[entry.key]);
-                                        _imageUrls.removeAt(entry.key);
-                                        _guideImages.removeAt(entry.key);
-                                      });
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: const BoxDecoration(
-                                        color: Colors.black54,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.close,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )),
+                    Icon(Icons.add_photo_alternate, size: 40),
+                    SizedBox(height: 8),
+                    Text('이미지 추가'),
                   ],
                 ),
               ),
+            )
+          else
+            Stack(
+              children: <Widget>[
+                Container(
+                  width: 200,
+                  height: 282,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey),
+                    image: DecorationImage(
+                      image: NetworkImage(_imageUrls.first),
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        html.Url.revokeObjectUrl(_imageUrls.first);
+                        _imageUrls.clear();
+                        _guideImages.clear();
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.black54,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.close,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
         ],
       );
 

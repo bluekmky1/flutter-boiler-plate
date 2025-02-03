@@ -52,4 +52,10 @@ class Routes {
     name: '/candidate-manage',
     path: '/candidate-manage',
   );
+
+  // 투표 결과 관리
+  static const RouteInfo manageVoteResult = RouteInfo(
+    name: '/manage-vote-result',
+    path: '/manage-vote-result',
+  );
 }

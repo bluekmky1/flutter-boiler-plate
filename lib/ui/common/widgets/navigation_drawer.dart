@@ -75,11 +75,6 @@ class AppNavigationDrawer extends ConsumerWidget {
               context.goNamed(Routes.candidateManage.name);
             },
           ),
-          _NavigationDrawerItem(
-            icon: Icons.article,
-            label: '게시글 관리',
-            onPressed: () {},
-          ),
 
           const Padding(
             padding: EdgeInsets.only(top: 32.0, left: 16.0),
@@ -130,7 +125,10 @@ class AppNavigationDrawer extends ConsumerWidget {
           _NavigationDrawerItem(
             icon: Icons.poll,
             label: '개표 결과',
-            onPressed: () {},
+            isSelected: currentRoute == Routes.manageVoteResult.path,
+            onPressed: () {
+              context.goNamed(Routes.manageVoteResult.name);
+            },
           ),
         ],
       ),

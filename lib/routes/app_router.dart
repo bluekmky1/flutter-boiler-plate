@@ -8,6 +8,7 @@ import '../ui/home/home_view.dart';
 import '../ui/manage_election_notice/manage_election_notice_view.dart';
 import '../ui/manage_user/manage_user_view.dart';
 import '../ui/manage_vote/manage_vote_view.dart';
+import '../ui/manage_vote_result/manage_vote_result_view.dart';
 import '../ui/sign_in/sign_in_view.dart';
 import '../ui/sign_up/sign_up_view.dart';
 import '../ui/vote_analytics/vote_analytics_view.dart';
@@ -96,6 +97,14 @@ class AppRouter {
         pageBuilder: (BuildContext context, GoRouterState state) =>
             const NoTransitionPage<dynamic>(
           child: CandidateManageView(),
+        ),
+      ),
+      GoRoute(
+        name: Routes.manageVoteResult.name,
+        path: Routes.manageVoteResult.path,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            const NoTransitionPage<dynamic>(
+          child: ManageVoteResultView(),
         ),
       ),
 
