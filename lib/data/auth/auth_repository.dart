@@ -2,11 +2,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/common/data/api_response.dart';
+import '../../core/common/data/message_response.dart';
 import '../../core/common/repository/repository.dart';
 import '../../core/common/repository/repository_result.dart';
 import 'auth_remote_data_source.dart';
 import 'entity/auth_token_entity.dart';
 import 'request_body/sign_in_request_body.dart';
+import 'request_body/sign_up_request_body.dart';
 
 final Provider<AuthRepository> authRepositoryProvider =
     Provider<AuthRepository>(
@@ -44,35 +46,36 @@ class AuthRepository extends Repository {
           ),
         _ => FailureRepositoryResult<ApiResponse<AuthTokenEntity>>(
             error: e,
-            messages: <String>['로그인 요청 실패'],
+            messages: <String>['로그인 실패'],
           ),
       };
     }
   }
 
-  Future<RepositoryResult<ApiResponse<AuthTokenEntity>>> signUp({
-    required String id,
+  Future<RepositoryResult<ApiResponse<MessageResponse>>> signUp({
+    required String email,
     required String password,
+    required String name,
+    required String governanceId,
   }) async {
     try {
-      return SuccessRepositoryResult<ApiResponse<AuthTokenEntity>>(
+      return SuccessRepositoryResult<ApiResponse<MessageResponse>>(
         data: await _authRemoteDataSource.signUp(
-          id: id,
-          name: id,
-          password: password,
+          signUpRequestBody: SignUpRequestBody(
+            email: email,
+            password: password,
+            name: name,
+            governanceId: governanceId,
+          ),
         ),
       );
     } on DioException catch (e) {
       final int? statusCode = e.response?.statusCode;
 
       return switch (statusCode) {
-        404 => FailureRepositoryResult<ApiResponse<AuthTokenEntity>>(
+        _ => FailureRepositoryResult<ApiResponse<MessageResponse>>(
             error: e,
-            messages: <String>['이메일 또는 비밀번호를 확인해 주세요.'],
-          ),
-        _ => FailureRepositoryResult<ApiResponse<AuthTokenEntity>>(
-            error: e,
-            messages: <String>['로그인 요청 실패'],
+            messages: <String>['회원가입 실패'],
           ),
       };
     }

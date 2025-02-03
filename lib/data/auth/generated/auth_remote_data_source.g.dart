@@ -60,20 +60,14 @@ class _AuthRemoteDataSource implements AuthRemoteDataSource {
   }
 
   @override
-  Future<ApiResponse<AuthTokenEntity>> signUp({
-    required String id,
-    required String name,
-    required String password,
-  }) async {
+  Future<ApiResponse<MessageResponse>> signUp(
+      {required SignUpRequestBody signUpRequestBody}) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    final _data = {
-      'id': id,
-      'name': name,
-      'password': password,
-    };
-    final _options = _setStreamType<ApiResponse<AuthTokenEntity>>(Options(
+    final _data = <String, dynamic>{};
+    _data.addAll(signUpRequestBody.toJson());
+    final _options = _setStreamType<ApiResponse<MessageResponse>>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
@@ -90,11 +84,11 @@ class _AuthRemoteDataSource implements AuthRemoteDataSource {
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ApiResponse<AuthTokenEntity> _value;
+    late ApiResponse<MessageResponse> _value;
     try {
-      _value = ApiResponse<AuthTokenEntity>.fromJson(
+      _value = ApiResponse<MessageResponse>.fromJson(
         _result.data!,
-        (json) => AuthTokenEntity.fromJson(json as Map<String, dynamic>),
+        (json) => MessageResponse.fromJson(json as Map<String, dynamic>),
       );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
