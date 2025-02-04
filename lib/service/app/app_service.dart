@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import '../storage/storage_key.dart';
 // import '../storage/storage_service.dart';
 import '../../data/auth/entity/auth_token_entity.dart';
+import '../../domain/auth/model/profile_model.dart';
 import '../storage/storage_key.dart';
 import '../storage/storage_service.dart';
 import 'app_state.dart';
@@ -14,7 +15,7 @@ final StateNotifierProvider<AppService, AppState> appServiceProvider =
     StateNotifierProvider<AppService, AppState>(
   (Ref ref) => AppService(
     storageService: ref.watch(storageServiceProvider),
-    state: const AppState.init(),
+    state: AppState.init(),
   ),
 );
 
@@ -41,7 +42,10 @@ class AppService extends StateNotifier<AppState> {
     }
   }
 
-  Future<void> signIn({required AuthTokenEntity authTokens}) async {
+  Future<void> signIn({
+    required AuthTokenEntity authTokens,
+    required String role,
+  }) async {
     await _storageService.setString(
       key: StorageKey.accessToken,
       value: authTokens.accessToken,
@@ -51,11 +55,26 @@ class AppService extends StateNotifier<AppState> {
       value: authTokens.refreshToken,
     );
 
-    state = state.copyWith(isSignedIn: true);
+    await _storageService.setString(
+      key: StorageKey.role,
+      value: role,
+    );
+
+    state = state.copyWith(isSignedIn: true, role: role);
   }
 
   Future<void> signOut() async {
     state = state.copyWith(isSignedIn: false);
     await _storageService.clearAll();
+  }
+
+  void setProfile({
+    required ProfileModel profile,
+  }) {
+    state = state.copyWith(
+      userName: profile.userName,
+      email: profile.email,
+      governanceInfo: profile.governanceInfo,
+    );
   }
 }

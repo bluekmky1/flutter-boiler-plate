@@ -32,11 +32,11 @@ class AppRouterInterceptor {
 
     final String? refreshToken =
         await storageService.getString(key: StorageKey.refreshToken);
-
+    final String? role = await storageService.getString(key: StorageKey.role);
     // 토큰이 없다면 로그인 페이지로 이동합니다.
-    if (accessToken == null || refreshToken == null) {
+    if (accessToken == null || refreshToken == null || role == null) {
       // 회원 가입 페이지로 이동이면 회원가입 페이지로 이동
-      if (state.fullPath?.startsWith(Routes.signUp.name) == true) {
+      if (state.fullPath?.startsWith(Routes.signUp.name) ?? false) {
         return Routes.signUp.name;
       }
 
@@ -48,6 +48,7 @@ class AppRouterInterceptor {
     await _ref.read(appServiceProvider.notifier).signIn(
           authTokens: AuthTokenEntity(
               accessToken: accessToken, refreshToken: refreshToken),
+          role: role,
         );
 
     // 로그인 상태를 확인합니다.
@@ -57,7 +58,7 @@ class AppRouterInterceptor {
     // 로그인 상태가 아니라면 로그인 페이지로 이동합니다.
     if (!isSignedIn) {
       // sign in 으로 가야만 하는 상태입니다.
-      if (state.fullPath?.startsWith(Routes.auth.name) == false) {
+      if (state.fullPath?.startsWith(Routes.auth.name) ?? false) {
         return Routes.signIn.name;
       }
     } else {

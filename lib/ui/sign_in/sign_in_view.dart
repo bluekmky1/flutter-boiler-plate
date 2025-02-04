@@ -38,13 +38,16 @@ class _SignInViewState extends ConsumerState<SignInView> {
       (LoadingStatus? previous, LoadingStatus next) {
         if (next == LoadingStatus.success) {
           context.goNamed(Routes.home.name);
+        } else if (next == LoadingStatus.error) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('이메일 또는 비밀번호가 올바르지 않습니다.'),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       },
     );
-
-    // 테스트 계정
-    // hazardous10@naver.com
-    // 1234
 
     return Scaffold(
       appBar: AppBar(),

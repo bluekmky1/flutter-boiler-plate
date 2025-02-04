@@ -4,7 +4,7 @@ import '../../../core/common/data/api_response.dart';
 import '../../../core/common/repository/repository_result.dart';
 import '../../../core/common/use_case/use_case_result.dart';
 import '../../../data/auth/auth_repository.dart';
-import '../../../data/auth/entity/auth_token_entity.dart';
+import '../../../data/auth/entity/sign_in_entity.dart';
 
 final AutoDisposeProvider<SignInUseCase> signInUseCaseProvider =
     Provider.autoDispose<SignInUseCase>(
@@ -19,22 +19,22 @@ class SignInUseCase {
     required AuthRepository authRepository,
   }) : _authRepository = authRepository;
 
-  Future<UseCaseResult<AuthTokenEntity>> call({
+  Future<UseCaseResult<SignInEntity>> call({
     required String email,
     required String password,
   }) async {
-    final RepositoryResult<ApiResponse<AuthTokenEntity>> repositoryResult =
+    final RepositoryResult<ApiResponse<SignInEntity>> repositoryResult =
         await _authRepository.signIn(
       email: email,
       password: password,
     );
     return switch (repositoryResult) {
-      SuccessRepositoryResult<ApiResponse<AuthTokenEntity>>() =>
-        SuccessUseCaseResult<AuthTokenEntity>(
+      SuccessRepositoryResult<ApiResponse<SignInEntity>>() =>
+        SuccessUseCaseResult<SignInEntity>(
           data: repositoryResult.data.data,
         ),
-      FailureRepositoryResult<ApiResponse<AuthTokenEntity>>() =>
-        FailureUseCaseResult<AuthTokenEntity>(
+      FailureRepositoryResult<ApiResponse<SignInEntity>>() =>
+        FailureUseCaseResult<SignInEntity>(
           message: repositoryResult.messages?[0],
         )
     };

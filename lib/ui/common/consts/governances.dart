@@ -169,7 +169,7 @@ class Governances {
   }
 
   // ID로 선거구 정보 가져오기
-  static GovernanceInfo? getGovernanceById(String id) =>
+  static GovernanceInfo getGovernanceById(String id) =>
       governanceList.firstWhere(
         (GovernanceInfo governance) => governance.id == id,
         orElse: () => GovernanceInfo(
@@ -180,7 +180,7 @@ class Governances {
       );
 
   // 단과대학과 학과명으로 ID 가져오기
-  static GovernanceInfo? getGovernanceId(String college, String? department) =>
+  static GovernanceInfo getGovernanceId(String college, String? department) =>
       governanceList.firstWhere(
         (GovernanceInfo governance) => governance.governanceName == college,
         orElse: () => GovernanceInfo(

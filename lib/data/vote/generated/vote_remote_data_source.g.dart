@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../auth_remote_data_source.dart';
+part of '../vote_remote_data_source.dart';
 
 // **************************************************************************
 // RetrofitGenerator
@@ -8,8 +8,8 @@ part of '../auth_remote_data_source.dart';
 
 // ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element
 
-class _AuthRemoteDataSource implements AuthRemoteDataSource {
-  _AuthRemoteDataSource(
+class _VoteRemoteDataSource implements VoteRemoteDataSource {
+  _VoteRemoteDataSource(
     this._dio, {
     this.baseUrl,
     this.errorLogger,
@@ -22,21 +22,19 @@ class _AuthRemoteDataSource implements AuthRemoteDataSource {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<ApiResponse<SignInEntity>> signIn(
-      {required SignInRequestBody signInRequestBody}) async {
+  Future<ApiResponse<VoteEntity>> getVoteMetadata() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(signInRequestBody.toJson());
-    final _options = _setStreamType<ApiResponse<SignInEntity>>(Options(
-      method: 'POST',
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<ApiResponse<VoteEntity>>(Options(
+      method: 'GET',
       headers: _headers,
       extra: _extra,
     )
         .compose(
           _dio.options,
-          '/auth/sign-in',
+          '/vote/metadata',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -46,11 +44,11 @@ class _AuthRemoteDataSource implements AuthRemoteDataSource {
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ApiResponse<SignInEntity> _value;
+    late ApiResponse<VoteEntity> _value;
     try {
-      _value = ApiResponse<SignInEntity>.fromJson(
+      _value = ApiResponse<VoteEntity>.fromJson(
         _result.data!,
-        (json) => SignInEntity.fromJson(json as Map<String, dynamic>),
+        (json) => VoteEntity.fromJson(json as Map<String, dynamic>),
       );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
@@ -60,13 +58,11 @@ class _AuthRemoteDataSource implements AuthRemoteDataSource {
   }
 
   @override
-  Future<ApiResponse<MessageResponse>> signUp(
-      {required SignUpRequestBody signUpRequestBody}) async {
+  Future<ApiResponse<MessageResponse>> resetVote() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(signUpRequestBody.toJson());
+    const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<ApiResponse<MessageResponse>>(Options(
       method: 'POST',
       headers: _headers,
@@ -74,7 +70,7 @@ class _AuthRemoteDataSource implements AuthRemoteDataSource {
     )
         .compose(
           _dio.options,
-          '/auth/sign-up',
+          '/vote/reset',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -89,42 +85,6 @@ class _AuthRemoteDataSource implements AuthRemoteDataSource {
       _value = ApiResponse<MessageResponse>.fromJson(
         _result.data!,
         (json) => MessageResponse.fromJson(json as Map<String, dynamic>),
-      );
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<ApiResponse<ProfileEntity>> getProfile() async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<ApiResponse<ProfileEntity>>(Options(
-      method: 'GET',
-      headers: _headers,
-      extra: _extra,
-    )
-        .compose(
-          _dio.options,
-          '/auth/whoAmI',
-          queryParameters: queryParameters,
-          data: _data,
-        )
-        .copyWith(
-            baseUrl: _combineBaseUrls(
-          _dio.options.baseUrl,
-          baseUrl,
-        )));
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ApiResponse<ProfileEntity> _value;
-    try {
-      _value = ApiResponse<ProfileEntity>.fromJson(
-        _result.data!,
-        (json) => ProfileEntity.fromJson(json as Map<String, dynamic>),
       );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);

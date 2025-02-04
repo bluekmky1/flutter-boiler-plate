@@ -5,7 +5,8 @@ import 'package:retrofit/retrofit.dart';
 import '../../core/common/data/api_response.dart';
 import '../../core/common/data/message_response.dart';
 import '../../service/network/dio_service.dart';
-import 'entity/auth_token_entity.dart';
+import 'entity/profile_entity.dart';
+import 'entity/sign_in_entity.dart';
 import 'request_body/sign_in_request_body.dart';
 import 'request_body/sign_up_request_body.dart';
 
@@ -22,7 +23,7 @@ abstract class AuthRemoteDataSource {
   factory AuthRemoteDataSource(Dio dio) = _AuthRemoteDataSource;
 
   @POST('/auth/sign-in')
-  Future<ApiResponse<AuthTokenEntity>> signIn({
+  Future<ApiResponse<SignInEntity>> signIn({
     @Body() required SignInRequestBody signInRequestBody,
   });
 
@@ -30,4 +31,7 @@ abstract class AuthRemoteDataSource {
   Future<ApiResponse<MessageResponse>> signUp({
     @Body() required SignUpRequestBody signUpRequestBody,
   });
+
+  @GET('/auth/whoAmI')
+  Future<ApiResponse<ProfileEntity>> getProfile();
 }

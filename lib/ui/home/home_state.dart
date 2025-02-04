@@ -2,30 +2,24 @@ import 'package:equatable/equatable.dart';
 import '../../../../core/loading_status.dart';
 
 class HomeState extends Equatable {
-  final LoadingStatus loadingStatus;
-  final String example;
+  final LoadingStatus getProfileLoadingStatus;
 
   const HomeState({
-    required this.loadingStatus,
-    required this.example,
+    required this.getProfileLoadingStatus,
   });
 
-  const HomeState.init()
-      : loadingStatus = LoadingStatus.none,
-        example = '';
+  const HomeState.init() : getProfileLoadingStatus = LoadingStatus.none;
 
   HomeState copyWith({
-    LoadingStatus? loadingStatus,
-    String? example,
+    LoadingStatus? getProfileLoadingStatus,
   }) =>
       HomeState(
-        loadingStatus: loadingStatus ?? this.loadingStatus,
-        example: example ?? this.example,
+        getProfileLoadingStatus:
+            getProfileLoadingStatus ?? this.getProfileLoadingStatus,
       );
 
   @override
   List<Object> get props => <Object>[
-        loadingStatus,
-        example,
+        getProfileLoadingStatus,
       ];
 }

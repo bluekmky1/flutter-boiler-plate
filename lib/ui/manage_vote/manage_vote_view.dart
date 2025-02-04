@@ -1,13 +1,19 @@
 // ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
+import 'dart:io';
+
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:image_picker_for_web/image_picker_for_web.dart';
 // import 'package:go_router/go_router.dart';
 
+import '../../util/date_time_format_helper.dart';
 import '../common/consts/breakpoints.dart';
 import '../common/layouts/main_layout.dart';
+import 'manage_vote_state.dart';
+import 'manage_vote_view_model.dart';
 
 class ManageVoteView extends ConsumerStatefulWidget {
   const ManageVoteView({super.key});
@@ -20,25 +26,103 @@ class _ManageVoteViewState extends ConsumerState<ManageVoteView> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final ImagePickerPlugin _imagePicker = ImagePickerPlugin();
   DateTimeRange? _electionPeriod;
-  final List<PlatformFile> _guideImages = <PlatformFile>[];
-  final List<String> _imageUrls = <String>[];
   final ScrollController _scrollController = ScrollController();
-  bool _isFormSubmitted = false; // 추가: 폼 제출 시도 여부를 추적
+  final bool _isFormSubmitted = false; // 추가: 폼 제출 시도 여부를 추적
 
-  // TODO: 실제 데이터 모델로 교체
-  bool hasActiveElection = false; // 임시로 선거 유무 상태 확인
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(manageVoteViewModelProvider.notifier).getVoteMetadata();
+    });
+    super.initState();
+  }
 
   @override
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
     _scrollController.dispose();
-    // URL 정리
-    for (final String url in _imageUrls) {
-      html.Url.revokeObjectUrl(url);
-    }
     super.dispose();
+  }
+
+  Future<void> selectImage() async {
+    final XFile? image = await _imagePicker.getImageFromSource(
+      source: ImageSource.gallery,
+    );
+
+    if (image != null) {
+      ref
+          .read(manageVoteViewModelProvider.notifier)
+          .setGuideImage(image: image);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ManageVoteState state = ref.watch(manageVoteViewModelProvider);
+    final ManageVoteViewModel viewModel =
+        ref.read(manageVoteViewModelProvider.notifier);
+
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double contentWidth = screenWidth >= Breakpoints.desktop
+        ? Breakpoints.desktopContentWidth
+        : screenWidth >= Breakpoints.tablet
+            ? screenWidth * 0.8
+            : Breakpoints.mobileContentWidth;
+
+    return MainLayout(
+      child: Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: screenWidth >= Breakpoints.desktop
+                ? Breakpoints.desktopPadding
+                : screenWidth >= Breakpoints.tablet
+                    ? Breakpoints.tabletPadding
+                    : Breakpoints.mobilePadding,
+            vertical: 16,
+          ),
+          child: SizedBox(
+            width: contentWidth,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    '선거 관리',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: 24),
+                  if (state.isLoading)
+                    Center(
+                      child: CircularProgressIndicator(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    )
+                  else
+                    Column(
+                      children: <Widget>[
+                        if (state.isVoteActive) ...<Widget>[
+                          _buildActiveElection(
+                            state: state,
+                            viewModel: viewModel,
+                          ),
+                        ] else ...<Widget>[
+                          _buildCreateElectionForm(
+                            state: state,
+                            viewModel: viewModel,
+                          ),
+                        ],
+                      ],
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _selectDateRange() async {
@@ -114,90 +198,10 @@ class _ManageVoteViewState extends ConsumerState<ManageVoteView> {
     }
   }
 
-  Future<void> _pickImage() async {
-    try {
-      final html.FileUploadInputElement input = html.FileUploadInputElement()
-        ..accept = 'image/*'
-        ..multiple = false; // 단일 이미지만 선택 가능
-
-      input.click();
-
-      await input.onChange.first;
-
-      if (input.files != null && input.files!.isNotEmpty) {
-        final html.File file = input.files!.first;
-        setState(() {
-          // 기존 이미지가 있다면 제거
-          if (_imageUrls.isNotEmpty) {
-            html.Url.revokeObjectUrl(_imageUrls.first);
-            _imageUrls.clear();
-            _guideImages.clear();
-          }
-          // 새 이미지 추가
-          _guideImages.add(PlatformFile(
-            name: file.name,
-            size: file.size,
-          ));
-          final String url = html.Url.createObjectUrl(file);
-          _imageUrls.add(url);
-        });
-      }
-    } on Exception catch (e) {
-      print('Image picker error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('이미지 선택 중 오류가 발생했습니다: $e'),
-        ),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final double contentWidth = screenWidth >= Breakpoints.desktop
-        ? Breakpoints.desktopContentWidth
-        : screenWidth >= Breakpoints.tablet
-            ? screenWidth * 0.8
-            : Breakpoints.mobileContentWidth;
-
-    return MainLayout(
-      child: Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: screenWidth >= Breakpoints.desktop
-                ? Breakpoints.desktopPadding
-                : screenWidth >= Breakpoints.tablet
-                    ? Breakpoints.tabletPadding
-                    : Breakpoints.mobilePadding,
-            vertical: 16,
-          ),
-          child: SizedBox(
-            width: contentWidth,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    '선거 관리',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                  const SizedBox(height: 24),
-                  if (hasActiveElection) ...<Widget>[
-                    _buildActiveElection(),
-                  ] else ...<Widget>[
-                    _buildCreateElectionForm(),
-                  ],
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCreateElectionForm() {
+  Widget _buildCreateElectionForm({
+    required ManageVoteState state,
+    required ManageVoteViewModel viewModel,
+  }) {
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isWideScreen = screenWidth >= Breakpoints.tablet;
 
@@ -232,7 +236,10 @@ class _ManageVoteViewState extends ConsumerState<ManageVoteView> {
           const SizedBox(height: 16),
           _buildDescriptionField(),
           const SizedBox(height: 16),
-          _buildGuideField(),
+          _buildGuideField(
+            state: state,
+            viewModel: viewModel,
+          ),
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
@@ -243,17 +250,18 @@ class _ManageVoteViewState extends ConsumerState<ManageVoteView> {
                 ),
               ),
               onPressed: () {
-                setState(() {
-                  _isFormSubmitted = true; // 폼 제출 시도를 표시
-                });
                 if (_formKey.currentState!.validate()) {
                   if (_electionPeriod == null) {
                     return;
                   }
-                  // TODO: 선거 생성 로직 구현
-                  print('선거명: ${_titleController.text}');
-                  print('기간: $_electionPeriod');
-                  print('설명: ${_descriptionController.text}');
+                  viewModel.createVote(
+                    voteDateTime: DateTimeFormatter.getDateRangeString(
+                      _electionPeriod!.start,
+                      _electionPeriod!.end,
+                    ),
+                    voteDescription: _descriptionController.text,
+                    voteName: _titleController.text,
+                  );
                 }
               },
               child: const Text('선거 생성'),
@@ -295,7 +303,10 @@ class _ManageVoteViewState extends ConsumerState<ManageVoteView> {
               Text(
                 _electionPeriod == null
                     ? '선거 기간을 선택해주세요'
-                    : '${_electionPeriod!.start.toString().split(' ')[0]} ~ ${_electionPeriod!.end.toString().split(' ')[0]}',
+                    : DateTimeFormatter.getDateRangeString(
+                        _electionPeriod!.start,
+                        _electionPeriod!.end,
+                      ),
                 style: TextStyle(
                   color: _isFormSubmitted && _electionPeriod == null
                       ? Colors.red
@@ -323,7 +334,11 @@ class _ManageVoteViewState extends ConsumerState<ManageVoteView> {
         },
       );
 
-  Widget _buildGuideField() => Column(
+  Widget _buildGuideField({
+    required ManageVoteState state,
+    required ManageVoteViewModel viewModel,
+  }) =>
+      Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
@@ -331,7 +346,7 @@ class _ManageVoteViewState extends ConsumerState<ManageVoteView> {
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
-          if (_guideImages.isEmpty)
+          if (state.guideImage.path.isEmpty)
             Container(
               width: 200,
               height: 282,
@@ -341,7 +356,7 @@ class _ManageVoteViewState extends ConsumerState<ManageVoteView> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: InkWell(
-                onTap: _pickImage,
+                onTap: selectImage,
                 child: const Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
@@ -353,53 +368,64 @@ class _ManageVoteViewState extends ConsumerState<ManageVoteView> {
               ),
             )
           else
-            Stack(
-              children: <Widget>[
-                Container(
-                  width: 200,
-                  height: 282,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey),
-                    image: DecorationImage(
-                      image: NetworkImage(_imageUrls.first),
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: InkWell(
-                    onTap: () {
-                      setState(() {
-                        html.Url.revokeObjectUrl(_imageUrls.first);
-                        _imageUrls.clear();
-                        _guideImages.clear();
-                      });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.black54,
-                        shape: BoxShape.circle,
+            FutureBuilder<Uint8List>(
+              future: state.guideImage.readAsBytes(),
+              builder:
+                  (BuildContext context, AsyncSnapshot<Uint8List> snapshot) {
+                if (snapshot.connectionState == ConnectionState.done &&
+                    snapshot.hasData) {
+                  return Stack(
+                    children: <Widget>[
+                      Container(
+                        width: 200,
+                        height: 282,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.grey),
+                          image: DecorationImage(
+                            image: MemoryImage(snapshot.data!),
+                            fit: BoxFit.contain,
+                          ),
+                        ),
                       ),
-                      child: const Icon(
-                        Icons.close,
-                        color: Colors.white,
-                        size: 20,
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: InkWell(
+                          onTap: () {
+                            viewModel.setGuideImage(image: XFile(''));
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.black54,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ),
-              ],
+                    ],
+                  );
+                } else {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+              },
             ),
         ],
       );
 
-  Widget _buildActiveElection() {
+  Widget _buildActiveElection({
+    required ManageVoteState state,
+    required ManageVoteViewModel viewModel,
+  }) {
     final double screenWidth = MediaQuery.of(context).size.width;
-    final bool isWideScreen = screenWidth >= Breakpoints.tablet;
     final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Card(
@@ -437,7 +463,7 @@ class _ManageVoteViewState extends ConsumerState<ManageVoteView> {
                           ),
                           TextButton(
                             onPressed: () {
-                              // TODO: 선거 삭제 로직 구현
+                              viewModel.resetVote();
                               Navigator.pop(context);
                             },
                             child: const Text(
@@ -453,88 +479,46 @@ class _ManageVoteViewState extends ConsumerState<ManageVoteView> {
               ],
             ),
             const SizedBox(height: 24),
-            if (isWideScreen)
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          '선거명: 제 1회 학생회장 선거',
-                          style: textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '기간: 2024-03-20 ~ 2024-03-22',
-                          style: textTheme.titleMedium,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          '설명: 2024학년도 학생회장 선거입니다.',
-                          style: textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '투표 안내: 학생증을 지참하여 투표소에서 투표해주세요.',
-                          style: textTheme.titleMedium,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              )
-            else ...<Widget>[
+            ...<Widget>[
               Text(
-                '선거명: 제 1회 학생회장 선거',
+                '선거명: ${state.voteName}',
                 style: textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
               Text(
-                '기간: 2024-03-20 ~ 2024-03-22',
+                '기간: ${state.voteDateTime}',
                 style: textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
               Text(
-                '설명: 2024학년도 학생회장 선거입니다.',
+                '설명: ${state.voteDescription}',
                 style: textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
               Text(
-                '투표 안내: 학생증을 지참하여 투표소에서 투표해주세요.',
+                '투표 안내: ${state.voteDescription}',
                 style: textTheme.titleMedium,
               ),
             ],
-            if (_guideImages.isNotEmpty) ...<Widget>[
-              const SizedBox(height: 16),
+            if (state.guideImagePath.isNotEmpty) ...<Widget>[
+              const SizedBox(height: 8),
               Text(
                 '투표 안내 이미지',
                 style: textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
               SizedBox(
-                height: 150,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _guideImages.length,
-                  itemBuilder: (BuildContext context, int index) => Container(
-                    width: 150,
-                    margin: const EdgeInsets.only(right: 8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      image: DecorationImage(
-                        image: NetworkImage(_imageUrls[index]),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
+                height: 200,
+                child: Image.network(
+                  state.guideImagePath,
+                  fit: BoxFit.contain,
+                  errorBuilder: (BuildContext context, Object error,
+                      StackTrace? stackTrace) {
+                    print('Image error: $error'); // 에러 확인을 위한 로그
+                    return const Center(
+                      child: Icon(Icons.error_outline, color: Colors.red),
+                    );
+                  },
                 ),
               ),
             ],
