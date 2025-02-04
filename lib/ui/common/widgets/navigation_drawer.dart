@@ -13,12 +13,12 @@ class AppNavigationDrawer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AppService appService = ref.read(appServiceProvider.notifier);
     final String role = ref.read(appServiceProvider).role;
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final String currentRoute = GoRouterState.of(context).uri.path;
     final String userName = ref.read(appServiceProvider).userName;
     final String email = ref.read(appServiceProvider).email;
     final GovernanceInfo governanceInfo =
         ref.read(appServiceProvider).governanceInfo;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final String currentRoute = GoRouterState.of(context).uri.path;
     final double screenWidth = MediaQuery.of(context).size.width;
     return Drawer(
       width: screenWidth < 400

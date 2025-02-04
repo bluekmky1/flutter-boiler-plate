@@ -44,20 +44,25 @@ class _ManageUserViewState extends ConsumerState<ManageUserView> {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 24),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Expanded(
-                      flex: 7,
-                      child: _buildMemberList(),
-                    ),
-                    const SizedBox(width: 24),
-                    Expanded(
-                      flex: 3,
-                      child: _buildActionButtons(),
-                    ),
-                  ],
-                ),
+                if (screenWidth < Breakpoints.tablet) ...<Widget>[
+                  _buildActionButtons(),
+                  const SizedBox(height: 16),
+                  _buildMemberList(),
+                ] else
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Expanded(
+                        flex: 7,
+                        child: _buildMemberList(),
+                      ),
+                      const SizedBox(width: 24),
+                      Expanded(
+                        flex: 3,
+                        child: _buildActionButtons(),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
